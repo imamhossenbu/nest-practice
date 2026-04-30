@@ -12,28 +12,29 @@ import { Model } from 'mongoose';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
+  // src/user/user.service.ts
+
   async createUser(registerUserDto: RegisterUserDto) {
     try {
-      return await this.userModel.create({
-        fname: registerUserDto.fname,
-        lname: registerUserDto.lname,
-        email: registerUserDto.email,
-        password: registerUserDto.password,
+      const createdUser = await this.userModel.create({
+        ...registerUserDto,
       });
+
+      return createdUser;
     } catch (err) {
       const duplicateKeyErrorCode = 11000;
       const e = err as { code?: number };
+
       if (e.code === duplicateKeyErrorCode) {
         throw new ConflictException('Email already exists');
       }
-
       throw err;
     }
   }
 
   async findByEmail(email: string) {
     try {
-      return await this.userModel.findOne({ email: email });
+      return await this.userModel.findOne({ email }).select('+password');
     } catch {
       throw new UnauthorizedException('Invalid credentials');
     }

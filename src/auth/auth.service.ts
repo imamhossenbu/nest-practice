@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { RegisterUserDto } from './dto/registerUser.dto';
@@ -15,15 +16,7 @@ export class AuthService {
     const saltRounds = 10;
     const hash = await bcrypt.hash(registerUserDto.password, saltRounds);
 
-    // Logic for user register
-    /**
-     * 1. check email if already exist
-     * 2. hash password
-     * 3. store the password into db
-     * 4. generate jwt
-     * 5. send token in response
-     */
-    const user = await this.userService.createUser({
+    const user: any = await this.userService.createUser({
       ...registerUserDto,
       password: hash,
     });
@@ -31,21 +24,22 @@ export class AuthService {
     const payload = {
       sub: user._id,
       email: user.email,
-      username: user.fname,
+      name: user.name,
       role: user.role,
     };
+
     const token = await this.jwtService.signAsync(payload);
+
     return {
       access_token: token,
       user: {
         id: user._id,
         email: user.email,
-        name: user.fname,
+        name: user.name,
         role: user.role,
       },
     };
   }
-
   async loginUser(loginUserDto: LoginUserDto) {
     const user = await this.userService.findByEmail(loginUserDto.email);
 
@@ -65,7 +59,7 @@ export class AuthService {
     const payload = {
       sub: user._id,
       email: user.email,
-      username: user.fname,
+      name: user.name,
       role: user.role,
     };
 
@@ -76,7 +70,7 @@ export class AuthService {
       user: {
         id: user._id,
         email: user.email,
-        name: user.fname,
+        name: user.name,
         role: user.role,
       },
     };

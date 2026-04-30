@@ -1,25 +1,26 @@
+// src/user/schemas/user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { Role } from '../user.types';
+import { Document } from 'mongoose';
 
-export type UserDocument = HydratedDocument<User>;
-
-@Schema()
-export class User {
+@Schema({ timestamps: true })
+export class User extends Document {
   @Prop({ required: true })
-  fname!: string;
-
-  @Prop({ required: true })
-  lname!: string;
+  name!: string;
 
   @Prop({ required: true, unique: true })
   email!: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, select: false })
   password!: string;
 
-  @Prop({ default: Role.Student })
+  @Prop({ enum: ['student', 'instructor', 'admin'], default: 'student' })
   role!: string;
+
+  @Prop({ default: false })
+  isVerified!: boolean;
+
+  @Prop()
+  photoUrl?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
